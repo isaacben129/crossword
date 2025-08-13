@@ -141,14 +141,16 @@ class CrosswordCreator():
         """
         if arcs is None:
             arcs = list(self.crossword.overlaps.keys())
-            print(n for n in arcs)
+            print(arcs)
         while len(arcs) != 0:
             x, y = arcs.pop(0)
             if self.revise(x, y):
                 if len(self.domains[x]) == 0:
+                    print("arcs are inconsistent")
                     return False
                 for z in self.crossword.neighbors(x) - {y}:
                     arcs.append((z, x))
+        print("arcs are consistent")
         return True
 
     def assignment_complete(self, assignment):
@@ -173,35 +175,32 @@ class CrosswordCreator():
 
         # check to see if the variables are consistent length.
         for key, value in assignment.items():
-            print(key)
-            print(value)
+            print("checking to see unary constraints")
             if key.length != len(value):
-                print("assignment is false")
+                print("unary constraints not satisfied")
                 return False
 
         # check to see if the values are consistent
         for v1 in assignment.values():
             for v2 in assignment.values():
                 if v1 == v2:
-                    print("assignment is false")
-                    return False
+                    print("value present in two")
+                    # return False
 
         # check for conflicts between neighbouring variables.
-        for key, value in assignment:
+        for key, value in assignment.items():
             neighbours = list(n for n in self.crossword.neighbors(key))
+            print("neighbours:")
             print(neighbours)
+            print(key)
             for neighbour in neighbours:
                 x, y = self.crossword.overlaps[key, neighbour]
-                # if value[x] != neighbour[0]
-                if self.ac3([key, neighbour]):
-                    continue
-                else:
+                arc = tuple([key, neighbour])
+                print("args for ac3:", list(arc))
+                if not self.ac3(arcs=[arc]):
                     print("assignment is false")
                     return False
         return True
-
-
-
 
     def order_domain_values(self, var, assignment):
         """
@@ -246,7 +245,6 @@ class CrosswordCreator():
                     return result
                 new_assignment.pop(var)
         return None
-
 
 
 def main():
