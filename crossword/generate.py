@@ -158,7 +158,7 @@ class CrosswordCreator():
         """
         if len(assignment) != len(self.domains):
             return False
-        for key, value in assignment:
+        for key, value in assignment.items():
             if value is None:
                 return False
         return True
@@ -238,12 +238,13 @@ class CrosswordCreator():
         var = self.select_unassigned_variable(assignment)
         print(self.consistent(assignment))
         for value in self.domains[var]:
-            new_assignment = assignment.copy()
+            new_assignment = assignment
             new_assignment[var] = value
             if self.consistent(new_assignment):
                 result = self.backtrack(new_assignment)
                 if result is not None:
                     return result
+                new_assignment.pop(var)
         return None
 
 
