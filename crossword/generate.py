@@ -198,7 +198,6 @@ class CrosswordCreator():
                 arc = tuple([key, neighbour])
                 print("args for ac3:", list(arc))
                 if not self.ac3(arcs=[arc]):
-                    print("assignment is false")
                     return False
         return True
 
