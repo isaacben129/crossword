@@ -141,6 +141,7 @@ class CrosswordCreator():
         """
         if arcs is None:
             arcs = list(self.crossword.overlaps.keys())
+            print(n for n in arcs)
         while len(arcs) != 0:
             x, y = arcs.pop(0)
             if self.revise(x, y):
@@ -162,13 +163,42 @@ class CrosswordCreator():
                 return False
         return True
 
-
-
     def consistent(self, assignment):
         """
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
         """
+        if len(assignment) == 0:
+            return False
+
+        # check to see if the variables are consistent length.
+        for key, value in assignment.items():
+            print(key)
+            print(value)
+            if key.length != len(value):
+                print("assignment is false")
+                return False
+
+        # check to see if the values are consistent
+        for v1 in assignment.values():
+            for v2 in assignment.values():
+                if v1 == v2:
+                    print("assignment is false")
+                    return False
+
+        # check for conflicts between neighbouring variables.
+        for key, value in assignment:
+            neighbours = list(n for n in self.crossword.neighbors(key))
+            print(neighbours)
+            for neighbour in neighbours:
+                x, y = self.crossword.overlaps[key, neighbour]
+                # if value[x] != neighbour[0]
+                if self.ac3([key, neighbour]):
+                    continue
+                else:
+                    print("assignment is false")
+                    return False
+        return True
 
 
 
@@ -181,7 +211,6 @@ class CrosswordCreator():
         that rules out the fewest values among the neighbors of `var`.
         """
 
-
     def select_unassigned_variable(self, assignment):
         """
         Return an unassigned variable not already part of `assignment`.
@@ -192,6 +221,7 @@ class CrosswordCreator():
         """
         for var in self.domains:
             if var not in assignment:
+                print(var)
                 return var
 
     def backtrack(self, assignment):
@@ -206,6 +236,16 @@ class CrosswordCreator():
         if self.assignment_complete(assignment):
             return assignment
         var = self.select_unassigned_variable(assignment)
+        print(self.consistent(assignment))
+        for value in self.domains[var]:
+            new_assignment = assignment.copy()
+            new_assignment[var] = value
+            if self.consistent(new_assignment):
+                result = self.backtrack(new_assignment)
+                if result is not None:
+                    return result
+        return None
+
 
 
 def main():
