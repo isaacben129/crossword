@@ -124,7 +124,7 @@ class CrosswordCreator():
         # print(self.crossword.overlaps[x, y])
         (over_x, over_y) = self.crossword.overlaps[x, y]
         for var in self.domains[x].copy():
-            check = [var_y for var_y in self.crossword.neighbors(var) if var[over_x] == var_y[over_y]]
+            check = [var_y for var_y in self.domains[y] if var[over_x] == var_y[over_y]]
             if len(check) == 0:
                 self.domains[x].remove(var)
                 revised = True
