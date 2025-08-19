@@ -229,10 +229,15 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
+        check = []
         for var in self.domains:
             if var not in assignment:
-                # print(var)
-                return var
+                rem_values = len(self.domains[var])
+                print(var, rem_values)
+                check.append((var, rem_values))
+        check.sort(key=lambda x: x[1])
+        final = [v for v, _ in check]
+        return final.pop(0)
 
     def backtrack(self, assignment):
         """
