@@ -124,7 +124,8 @@ class CrosswordCreator():
         # print(self.crossword.overlaps[x, y])
         (over_x, over_y) = self.crossword.overlaps[x, y]
         for var in self.domains[x].copy():
-            check = [var_y for var_y in self.domains[y].copy() if len(var_y) > over_y and len(var) > over_x and var[over_x] == var_y[over_y]]
+            check = [var_y for var_y in self.domains[y].copy() if
+                     len(var_y) > over_y and len(var) > over_x and var[over_x] == var_y[over_y]]
             if len(check) == 0:
                 self.domains[x].remove(var)
                 revised = True
@@ -141,7 +142,7 @@ class CrosswordCreator():
         """
         if arcs is None:
             arcs = list(self.crossword.overlaps.keys())
-            print(arcs)
+            # print(arcs)
         while len(arcs) != 0:
             x, y = arcs.pop(0)
             if self.revise(x, y):
@@ -180,19 +181,21 @@ class CrosswordCreator():
                 print("unary constraints not satisfied")
                 return False
 
-
         # check for conflicts between neighbouring variables.
         for key, value in assignment.items():
             neighbours = list(n for n in self.crossword.neighbors(key))
-            print("neighbours:")
-            print(neighbours)
-            print(key)
+            # print("neighbours:")
+            # print(neighbours)
+            # print(key)
+            # for neighbour in neighbours:
             for neighbour in neighbours:
                 x, y = self.crossword.overlaps[key, neighbour]
                 arc = tuple([key, neighbour])
-                print("args for ac3:", list(arc))
+                # print("args for ac3:", list(arc))
                 if self.ac3(arcs=[arc]) is False:
+                    print("ac3 is false for consistent")
                     return False
+
         return True
 
     def order_domain_values(self, var, assignment):
@@ -202,11 +205,21 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-
-
-
-
-
+        domain_list = self.domains[var]
+        check = []
+        # print("this is the domain_list", "/n", domain_list)
+        for domain in domain_list:
+            elim_count = 0
+            for value in self.crossword.neighbors(var):
+                if value not in assignment:
+                    i, j = self.crossword.overlaps[var, value]
+                    for neighbour_value in self.domains[value]:
+                        if domain[i] != neighbour_value[j]:
+                            elim_count += 1
+            check.append((domain, elim_count))
+        check.sort(key=lambda x: x[1])
+        print(assignment)
+        return [val for val, _ in check]
 
     def select_unassigned_variable(self, assignment):
         """
@@ -218,7 +231,7 @@ class CrosswordCreator():
         """
         for var in self.domains:
             if var not in assignment:
-                print(var)
+                # print(var)
                 return var
 
     def backtrack(self, assignment):
@@ -234,7 +247,8 @@ class CrosswordCreator():
             return assignment
         var = self.select_unassigned_variable(assignment)
         print(self.consistent(assignment))
-        for value in self.domains[var].copy():
+        # for value in self.domains[var].copy():
+        for value in self.order_domain_values(var, assignment):
             new_assignment = assignment
             new_assignment[var] = value
             if self.consistent(new_assignment):
