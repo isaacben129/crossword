@@ -124,7 +124,7 @@ class CrosswordCreator():
         # print(self.crossword.overlaps[x, y])
         (over_x, over_y) = self.crossword.overlaps[x, y]
         for var in self.domains[x].copy():
-            check = [var_y for var_y in self.domains[y] if var[over_x] == var_y[over_y]]
+            check = [var_y for var_y in self.domains[y].copy() if len(var_y) > over_y and len(var) > over_x and var[over_x] == var_y[over_y]]
             if len(check) == 0:
                 self.domains[x].remove(var)
                 revised = True
@@ -180,12 +180,6 @@ class CrosswordCreator():
                 print("unary constraints not satisfied")
                 return False
 
-        # check to see if the values are consistent
-        for v1 in assignment.values():
-            for v2 in assignment.values():
-                if v1 == v2:
-                    print("value present in two")
-                    # return False
 
         # check for conflicts between neighbouring variables.
         for key, value in assignment.items():
@@ -197,7 +191,7 @@ class CrosswordCreator():
                 x, y = self.crossword.overlaps[key, neighbour]
                 arc = tuple([key, neighbour])
                 print("args for ac3:", list(arc))
-                if not self.ac3(arcs=[arc]):
+                if self.ac3(arcs=[arc]) is False:
                     return False
         return True
 
@@ -208,6 +202,11 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
+
+
+
+
+
 
     def select_unassigned_variable(self, assignment):
         """
@@ -235,7 +234,7 @@ class CrosswordCreator():
             return assignment
         var = self.select_unassigned_variable(assignment)
         print(self.consistent(assignment))
-        for value in self.domains[var]:
+        for value in self.domains[var].copy():
             new_assignment = assignment
             new_assignment[var] = value
             if self.consistent(new_assignment):
